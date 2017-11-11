@@ -1,6 +1,6 @@
 .global clr_kb			//void clr_kb(): Clears keyboard buffer
 .global getInteger		//int getInteger(): returns in r0 Integer Bigger Than 1
-.global sumNums			//int sumNums(int): returns in r1 Sum of Numbers from getInteger
+.global sumNums			//int sumNums(int): returns Sum of Numbers from getInteger
 .global main
 .section .text
 
@@ -9,8 +9,15 @@ main:
 	push {lr}		//Saves Original lr
 	bl getInteger		//Branch to getInteger
 	mov r1, r0		//Moves r0 to r1
+	push {r0}		//Saves r0 value
 	ldr r0, =output		//r0 Contains Pointer to Output
 	bl printf		//Calls to printf
+	pop {r0}		//Returns r0 value
+	mov r4, r0		//Moves r0 to r4
+	mov r0, #1		//Moves #1 to r0
+	mov r3, #0		//Moves #0 to r3
+	bl sumNums		//Branch to sumNums
+	mov r0, #0		//Return Error Code #0
 	pop {pc}
 
 output: .asciz "The value you entered was: %d\n"
@@ -61,3 +68,16 @@ clr_kb_loop:
 
 .align 4
 sumNums:
+	cmp r0, r4		//Compares r0 to r4
+	bgt endSum		//Calls to endSum function
+	add r3, r3, r0		//r3 = r3 + r0
+	add r0, #1		//r0++
+	bal sumNums		//Branch Back to sumNums
+endSum:
+	ldr r0, =outSum		//r0 Contains Pointer to outSum
+	mov r1, r4		//Moves r4 to r1
+	mov r2, r3		//Moves r3 to r2
+	bl printf		//Calls to printf
+
+/*Output Sums*/
+outSum: .asciz "Sum of 1 to %d is %d\n"
